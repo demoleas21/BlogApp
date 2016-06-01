@@ -50,6 +50,23 @@ def logout():
     return redirect(url_for('login'))
 
 
+@app.route('/add', methods=['POST'])
+@login_required
+def add():
+    title = request.form['title']
+    post = request.form['post']
+    if not title or not post:
+        flash("All fields are required. Please try again.")
+        return redirect(url_for('main'))
+    else:
+        g.db = connect_db()
+        g.db.execute('INSERT INTO posts(title, post) VALUES(?,?)', [title, post])
+        g.db.commit()
+        g.db.close()
+        flash('New entry was successfully posted!')
+        return redirect(url_for('main'))
+
+
 @app.route('/main')
 @login_required
 def main():
