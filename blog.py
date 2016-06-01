@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, session, flash, redirect, url
 from functools import wraps
 
 # Configuration
-DATABASE = 'blog.py'
+DATABASE = 'blog.db'
 USERNAME = 'admin'
 PASSWORD = 'admin'
 SECRET_KEY = 's:E\xa8\xb12\xf9\x9b\xe6\xfd\xcb\xd6\xaf\xb8}i1\x1d02\xb1e\x97Z'
@@ -53,7 +53,11 @@ def logout():
 @app.route('/main')
 @login_required
 def main():
-    return render_template('main.html')
+    g.db = connect_db()
+    cur = g.db.execute('SELECT * FROM posts')
+    posts = [dict(title=row[0], post=row[1]) for row in cur.fetchall()]
+    g.db.close()
+    return render_template('main.html', posts=posts)
 
 if __name__ == '__main__':
     app.run(debug=True)
